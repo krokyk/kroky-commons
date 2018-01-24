@@ -6,8 +6,11 @@ package org.kroky.commons.utils;
  */
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Image;
 import java.awt.Window;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.ImageIcon;
@@ -24,11 +27,13 @@ public class SwingUtils {
 
     private static final Map<String, ImageIcon> ICONS = new HashMap<>();
     private static final Map<String, Map<Dimension, ImageIcon>> SCALED_ICONS = new HashMap<>();
+    private static final Map<String, Font> FONTS = new HashMap<>();
 
     /**
-    Absolute path starts with "/"
-    @param resourcePath
-    @return
+     * Absolute path starts with "/"
+     *
+     * @param resourcePath
+     * @return
      */
     public static ImageIcon getIcon(String resourcePath) {
         return ICONS.computeIfAbsent(resourcePath, k -> new ImageIcon(SwingUtils.class.getResource(resourcePath)));
@@ -42,6 +47,14 @@ public class SwingUtils {
         Image image = icon.getImage();
         Image newimg = image.getScaledInstance(d.width, d.height, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
         return new ImageIcon(newimg);
+    }
+
+    public static Font getFont(String resourcePath, int style, float size) throws FontFormatException, IOException {
+        if (!FONTS.containsKey(resourcePath)) {
+            Font baseFont = Font.createFont(Font.TRUETYPE_FONT, SwingUtils.class.getResourceAsStream(resourcePath));
+            FONTS.computeIfAbsent(resourcePath, k -> baseFont);
+        }
+        return FONTS.get(resourcePath).deriveFont(style, size);
     }
 
     public static void centerOnParent(Component child) {
